@@ -1,86 +1,77 @@
 @extends('layouts.dashboard')
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <h5>Pengembalian Alat</h5>
-        </div>
-
-        <div class="card-body">
-            @if (session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Peminjam</th>
-                        <th>Alat</th>
-                        <th>Jumlah</th>
-                        <th>Batas Kembali</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($peminjamans as $p)
-                        @php
-                            $tanggalRencana = \Carbon\Carbon::parse($p->tanggal_kembali_rencana);
-                            $hariIni = \Carbon\Carbon::today();
-
-                            $hariTelat = $hariIni->greaterThan($tanggalRencana)
-                                ? $tanggalRencana->diffInDays($hariIni)
-                                : 0;
-
-                            $denda = $hariTelat * $p->alat->harga_denda;
-                        @endphp
-                        <tr>
-                            <td>{{ $p->user->username }}</td>
-                            <td>{{ $p->alat->nama }}</td>
-                            <td>{{ $p->jumlah }}</td>
-                            <td>{{ $p->tanggal_kembali_rencana }}</td>
-                            <td>
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#modal{{ $p->id }}">
-                                    Proses
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- MODAL -->
-                        <div class="modal fade" id="modal{{ $p->id }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Konfirmasi Pengembalian</h5>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p><strong>Peminjam:</strong> {{ $p->user->username }}</p>
-                                        <p><strong>Alat:</strong> {{ $p->alat->nama }}</p>
-                                        <p><strong>Jumlah:</strong> {{ $p->jumlah }}</p>
-                                        <p><strong>Tanggal Kembali:</strong> {{ \Carbon\Carbon::today()->toDateString() }}
-                                        </p>
-                                        <p><strong>Hari Telat:</strong> {{ $hariTelat }} hari</p>
-                                        <p>
-                                            <strong>Harga Denda per Hari:</strong>
-                                            Rp {{ number_format($p->alat->harga_denda, 0, ',', '.') }}/hari
-                                        </p>
-                                        <p><strong>Total Denda:</strong> Rp {{ number_format($denda) }}</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <form action="{{ route('petugas.pengembalian.store') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="peminjaman_id" value="{{ $p->id }}">
-                                            <button class="btn btn-primary">
-                                                Selesaikan Peminjaman
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800">Kelola Pengembalian</h1>
+        <p class="text-sm text-gray-500">Kelola Pengembalian Barang dan Hitung Denda</p>
     </div>
+
+    <form method="GET" action="{{ route('petugas.pengembalian.index') }}" 
+          class="flex items-end gap-3">
+
+        <div>
+            <label class="text-sm text-gray-600">Cari</label>
+            <input type="text" name="search" 
+                value="{{ request('search') }}"
+                placeholder="Nama peminjam / alat"
+                class="border rounded px-3 py-1 text-sm w-52">
+        </div>
+
+        <button class="px-3 py-2 bg-gray-800 text-white rounded text-sm">
+            Cari
+        </button>
+
+        <a href="{{ route('petugas.pengembalian.index') }}" 
+           class="px-3 py-2 bg-gray-200 rounded text-sm">
+            Reset
+        </a>
+    </form>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-4 py-3 text-left w-[60px]">No</th>
+                <th class="px-4 py-3 text-left">Peminjam</th>
+                <th class="px-4 py-3 text-left">Alat</th>
+                <th class="px-4 py-3 text-left">Jumlah</th>
+                <th class="px-4 py-3 text-left">Batas Kembali</th>
+                <th class="px-4 py-3 text-left">Aksi</th>
+            </tr>
+        </thead>
+
+        <tbody class="divide-y">
+            @forelse ($peminjamans as $p)
+                <tr>
+                    <td class="px-6 py-4">{{ $peminjamans->firstItem() + $loop->index }}</td>
+                    <td class="px-4 py-3">{{ $p->user->username }}</td>
+                    <td class="px-4 py-3">{{ $p->alat->nama_alat }}</td>
+                    <td class="px-4 py-3">{{ $p->jumlah }}</td>
+                    <td class="px-4 py-3">
+                        {{ \Carbon\Carbon::parse($p->tanggal_kembali_rencana)->format('d M Y') }}
+                    </td>
+                    <td class="px-4 py-3">
+                        <a href="{{ route('petugas.pengembalian.show', $p->id) }}"
+                           class="px-3 py-1 bg-blue-600 text-white rounded text-sm">
+                            Proses
+                        </a>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        Belum ada yang bisa dikembalikan
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+    @if ($peminjamans->hasPages())
+            <div class="p-4 border-t">
+                {{ $peminjamans->links() }}
+            </div>
+        @endif
+</div>
 @endsection

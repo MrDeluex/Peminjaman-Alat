@@ -9,11 +9,24 @@ use Illuminate\Http\Request;
 
 class AlatController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $alats = Alat::with('kategori')->latest()->get();
-        return view('admin.alat.index', compact('alats'));
+        $query = Alat::with('kategori');
+
+        if ($request->filled('search')) {
+            $query->where('nama_alat', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('kategori')) {
+            $query->where('kategori_id', $request->kategori);
+        }
+
+        $alats = $query->latest()->paginate(10);
+        $kategoris = Kategori::orderBy('nama_kategori')->paginate(10);
+
+        return view('admin.alat.index', compact('alats', 'kategoris'));
     }
+
 
     public function create()
     {
@@ -28,6 +41,11 @@ class AlatController extends Controller
             'kategori_id' => 'required|exists:kategoris,id',
             'stok'        => 'required|integer|min:0',
             'harga_denda' => 'required|integer|min:0',
+        ], [
+            'nama_alat.required'   => 'Nama alat wajib diisi',
+            'kategori_id.required' => 'Kategori wajib dipilih',
+            'stok.required'        => 'Stok wajib diisi',
+            'harga_denda.required' => 'Denda per hari wajib diisi',
         ]);
 
         Alat::create($request->all());
@@ -50,6 +68,11 @@ class AlatController extends Controller
             'kategori_id' => 'required|exists:kategoris,id',
             'stok'        => 'required|integer|min:0',
             'harga_denda' => 'required|integer|min:0',
+        ], [
+            'nama_alat.required'   => 'Nama alat wajib diisi',
+            'kategori_id.required' => 'Kategori wajib dipilih',
+            'stok.required'        => 'Stok wajib diisi',
+            'harga_denda.required' => 'Denda per hari wajib diisi',
         ]);
 
         $alat = Alat::findOrFail($id);

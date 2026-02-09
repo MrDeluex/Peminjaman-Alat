@@ -9,7 +9,9 @@ class Pengembalian extends Model
     protected $fillable = [
         'peminjaman_id',
         'tanggal_pengembalian',
-        'denda',
+        'denda_telat',
+        'denda_tambahan',
+        'total_denda',
     ];
 
     public function peminjaman()
@@ -17,3 +19,4 @@ class Pengembalian extends Model
         return $this->belongsTo(Peminjaman::class);
     }
 }
+

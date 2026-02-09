@@ -9,9 +9,27 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::latest()->get();
+        $query = User::query();
+
+        // search
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('username', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // filter role
+        if ($request->role) {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query
+            ->orderByRaw("FIELD(role,'admin','petugas','peminjam')")
+            ->paginate(10);
+
         return view('admin.users.index', compact('users'));
     }
 
@@ -24,10 +42,19 @@ class UserController extends Controller
     {
         $request->validate([
             'username' => 'required|string|max:100',
-            'email' => 'required|email|unique:users',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6',
-            'role' => 'required|in:admin,petugas,peminjam',
+            'role'     => 'required|in:admin,petugas,peminjam',
+        ], [
+            'username.required' => 'Username wajib diisi',
+            'email.required'    => 'Email wajib diisi',
+            'email.email'       => 'Format email tidak valid',
+            'email.unique'      => 'Email sudah terdaftar',
+            'password.required' => 'Password wajib diisi',
+            'password.min'      => 'Password minimal 6 karakter',
+            'role.required'     => 'Role wajib dipilih',
         ]);
+
 
         User::create([
             'username' => $request->username,
@@ -43,6 +70,7 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
+
         return view('admin.users.edit', compact('user'));
     }
 
@@ -50,12 +78,16 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
+        if ($user->role === 'admin') {
+            return back()->with('error', 'Admin utama tidak dapat diubah');
+        }
+
         $request->validate([
-            'role' => 'required|in:admin,petugas,peminjam',
+            'role' => 'required|in:petugas,peminjam',
         ]);
 
         $user->update([
-            'role' => $request->role,
+            'role' => $request->role
         ]);
 
         return redirect()->route('admin.users.index')
@@ -64,7 +96,13 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
+        $user = User::findOrFail($id);
+
+        if ($user->role === 'admin') {
+            return back()->with('error', 'User dengan role admin tidak dapat dihapus');
+        }
+
+        $user->delete();
 
         return back()->with('success', 'User berhasil dihapus');
     }

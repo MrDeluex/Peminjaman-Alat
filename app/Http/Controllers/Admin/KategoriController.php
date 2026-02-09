@@ -8,11 +8,19 @@ use Illuminate\Http\Request;
 
 class KategoriController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $kategoris = Kategori::latest()->get();
+        $query = Kategori::query();
+
+        if ($request->filled('search')) {
+            $query->where('nama_kategori', 'like', '%' . $request->search . '%');
+        }
+
+        $kategoris = $query->orderBy('nama_kategori')->paginate(10);
+
         return view('admin.kategori.index', compact('kategoris'));
     }
+
 
     public function create()
     {
@@ -23,6 +31,8 @@ class KategoriController extends Controller
     {
         $request->validate([
             'nama_kategori' => 'required|string|max:255',
+        ], [
+            'nama_kategori.required'   => 'Nama kategori wajib diisi',
         ]);
 
         Kategori::create($request->all());
@@ -41,6 +51,8 @@ class KategoriController extends Controller
     {
         $request->validate([
             'nama_kategori' => 'required|string|max:255',
+        ], [
+            'nama_kategori.required'   => 'Nama kategori wajib diisi',
         ]);
 
         $kategori = Kategori::findOrFail($id);

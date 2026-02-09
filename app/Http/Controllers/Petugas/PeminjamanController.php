@@ -9,14 +9,39 @@ use Illuminate\Http\Request;
 class PeminjamanController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $peminjamans = Peminjaman::with(['user', 'alat'])
-            ->whereIn('status', ['menunggu', 'disetujui'])
-            ->get();
+        $query = Peminjaman::with(['user', 'alat']);
 
-        return view('petugas.peminjaman.index', compact('peminjamans'));
+        // Filter Status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        } else {
+            $query->whereIn('status', ['menunggu', 'disetujui']);
+        }
+
+        // Fitur Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($userQuery) use ($search) {
+                    $userQuery->where('username', 'like', "%$search%");
+                })
+                    ->orWhereHas('alat', function ($alatQuery) use ($search) {
+                        $alatQuery->where('nama_alat', 'like', "%$search%");
+                    });
+            });
+        }
+
+        $peminjamans = $query->paginate(10);
+
+        $statuses = ['menunggu', 'disetujui', 'ditolak', 'dipinjam', 'selesai', 'expired'];
+
+        return view('petugas.peminjaman.index', compact('peminjamans', 'statuses'));
     }
+
+
 
     public function approve($id)
     {
@@ -34,9 +59,14 @@ class PeminjamanController extends Controller
             'status' => 'disetujui'
         ]);
 
-        logAktivitas('Menyetujui peminjaman alat');
+        logAktivitas(
+            'Peminjaman disetujui | ' .
+                'Peminjaman #' . $peminjaman->id . ' | ' .
+                'Alat: ' . $alat->nama_alat . ' | ' .
+                'Qty: ' . $peminjaman->jumlah
+        );
 
-        return back()->with('success', 'Peminjaman disetujui. Silakan peminjam mengambil alat.');
+        return back()->with('success', 'Peminjaman disetujui.');
     }
 
     public function serahkan($id)
@@ -47,20 +77,30 @@ class PeminjamanController extends Controller
             'status' => 'dipinjam'
         ]);
 
-        logAktivitas('Menyerahkan alat ke peminjam');
-
+        logAktivitas(
+            'Alat diserahkan ke peminjam | ' .
+                'Peminjaman #' . $peminjaman->id . ' | ' .
+                'Alat: ' . $peminjaman->alat->nama_alat . ' | ' .
+                'Qty: ' . $peminjaman->jumlah
+        );
 
         return back()->with('success', 'Alat berhasil diserahkan ke peminjam');
     }
 
     public function reject($id)
     {
-        Peminjaman::findOrFail($id)->update([
+        $peminjaman = Peminjaman::with('alat')->findOrFail($id);
+
+        $peminjaman->update([
             'status' => 'ditolak'
         ]);
 
-        logAktivitas('Menolak peminjaman alat');
-
+        logAktivitas(
+            'Peminjaman ditolak | ' .
+                'Peminjaman #' . $peminjaman->id . ' | ' .
+                'Alat: ' . $peminjaman->alat->nama_alat . ' | ' .
+                'Qty: ' . $peminjaman->jumlah
+        );
         return back()->with('success', 'Peminjaman ditolak');
     }
 }

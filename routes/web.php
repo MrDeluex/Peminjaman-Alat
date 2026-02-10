@@ -36,7 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::prefix('admin')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])
         ->name('admin.users.index');
 
@@ -79,7 +79,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 });
 
 Route::prefix('petugas')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'role:petugas'])
     ->group(function () {
 
         // list pengajuan
@@ -136,7 +136,7 @@ Route::prefix('petugas')
     });
 
 Route::prefix('peminjam')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'role:peminjam'])
     ->group(function () {
 
         // lihat alat

@@ -3,7 +3,7 @@
 @section('content')
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Detail Alat</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Detail Pengajuan Alat</h1>
             <p class="text-sm text-gray-500">Informasi lengkap alat dan pengajuan peminjaman</p>
         </div>
     </div>

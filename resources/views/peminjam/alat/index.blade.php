@@ -71,7 +71,7 @@
                             <td class="px-6 py-4">
                                 <a href="{{ route('peminjam.alat.show', $alat->id) }}"
                                     class="inline-block bg-blue-600 text-white text-xs px-3 py-2 rounded hover:bg-blue-700 transition">
-                                    Detail
+                                    Ajukan
                                 </a>
                             </td>
                         </tr>

@@ -37,7 +37,7 @@
                         <th class="px-6 py-3 text-left">Alat</th>
                         <th class="px-6 py-3 text-center w-[100px]">Jumlah</th>
                         <th class="px-6 py-3 text-left">Tgl Pengembalian</th>
-                        <th class="px-6 py-3 text-right w-[140px]">Denda</th>
+                        <th class="px-6 py-3 text-right w-[180px]">Denda</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">

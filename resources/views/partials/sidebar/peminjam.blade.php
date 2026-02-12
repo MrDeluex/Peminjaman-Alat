@@ -50,7 +50,7 @@
             Peminjaman Saya
         </a>
 
-        <a href="{{ route('peminjam.pengembalian.index') }}"
+        {{-- <a href="{{ route('peminjam.pengembalian.index') }}"
             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200
            {{ request()->routeIs('peminjam.pengembalian.*')
                ? 'bg-gray-800 text-white font-semibold'
@@ -60,7 +60,7 @@
                 class="w-1 h-5 rounded-full {{ request()->routeIs('peminjam.pengembalian.*') ? 'bg-white' : 'bg-transparent' }}"></span>
             <x-icon name="pengembalian" />
             Pengembalian
-        </a>
+        </a> --}}
     </div>
 
 </nav>

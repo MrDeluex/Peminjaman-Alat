@@ -17,6 +17,7 @@ class Peminjaman extends Model
         'status',
         'keterangan',
         'alasan_batal',
+        'disetujui_oleh',
     ];
 
     public const STATUS_MENUNGGU    = 'menunggu';
@@ -32,8 +33,18 @@ class Peminjaman extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'disetujui_oleh');
+    }
+
     public function alat()
     {
         return $this->belongsTo(Alat::class);
+    }
+
+    public function pengembalian()
+    {
+        return $this->hasOne(Pengembalian::class);
     }
 }

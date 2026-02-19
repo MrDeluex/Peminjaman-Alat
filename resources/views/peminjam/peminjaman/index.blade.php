@@ -114,8 +114,11 @@
             '{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}',
             '{{ \Carbon\Carbon::parse($p->tanggal_kembali_rencana)->format('d M Y') }}',
             '{{ $p->status }}',
+            `{{ $p->approver->username ?? '-' }}`,
             `{{ $p->alasan_batal ?? '-' }}`,
-            `{{ $p->keterangan ?? '-' }}`
+            `{{ $p->keterangan ?? '-' }}`,
+            `{{ $p->pengembalian->total_denda ?? 0 }}`
+
         )"
                                     class="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition">
                                     Detail
@@ -192,6 +195,15 @@
                     <span class="font-medium">Keterangan:</span>
                     <p id="detail_keterangan"></p>
                 </div>
+                <div>
+                    <span class="font-medium">Petugas:</span>
+                    <p id="detail_approver"></p>
+                </div>
+                <div id="denda_wrapper" class="hidden">
+                    <span class="font-medium text-red-600">Total Denda:</span>
+                    <p id="detail_denda" class="text-red-600 font-semibold"></p>
+                </div>
+
 
 
                 <div id="alasan_wrapper" class="hidden">
@@ -212,20 +224,31 @@
     </div>
 
     <script>
-        function openDetailModal(nama, jumlah, pinjam, kembali, status, alasan, keterangan) {
+        function openDetailModal(nama, jumlah, pinjam, kembali, status, approver, alasan, keterangan, total_denda) {
 
             document.getElementById('detail_nama').innerText = nama;
             document.getElementById('detail_jumlah').innerText = jumlah;
             document.getElementById('detail_pinjam').innerText = pinjam;
             document.getElementById('detail_kembali').innerText = kembali;
             document.getElementById('detail_status').innerText = status;
+            document.getElementById('detail_approver').innerText = approver;
             document.getElementById('detail_keterangan').innerText = keterangan;
 
+            // Alasan penolakan
             if (status === 'ditolak') {
                 document.getElementById('alasan_wrapper').classList.remove('hidden');
                 document.getElementById('detail_alasan').innerText = alasan;
             } else {
                 document.getElementById('alasan_wrapper').classList.add('hidden');
+            }
+
+            // Total denda (hanya jika ada dan > 0)
+            if (total_denda && total_denda > 0) {
+                document.getElementById('denda_wrapper').classList.remove('hidden');
+                document.getElementById('detail_denda').innerText =
+                    'Rp ' + Number(total_denda).toLocaleString('id-ID');
+            } else {
+                document.getElementById('denda_wrapper').classList.add('hidden');
             }
 
             const modal = document.getElementById('detailModal');

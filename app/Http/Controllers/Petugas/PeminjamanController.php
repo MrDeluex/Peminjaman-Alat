@@ -43,31 +43,34 @@ class PeminjamanController extends Controller
 
 
 
-    public function approve($id)
-    {
-        $peminjaman = Peminjaman::findOrFail($id);
+public function approve($id)
+{
+    $peminjaman = Peminjaman::with('alat')->findOrFail($id);
 
-        $alat = $peminjaman->alat;
+    $alat = $peminjaman->alat;
 
-        if ($peminjaman->jumlah > $alat->stok) {
-            return back()->with('error', 'Stok tidak mencukupi');
-        }
-
-        $alat->decrement('stok', $peminjaman->jumlah);
-
-        $peminjaman->update([
-            'status' => 'disetujui'
-        ]);
-
-        logAktivitas(
-            'Peminjaman disetujui | ' .
-                'Peminjaman #' . $peminjaman->id . ' | ' .
-                'Alat: ' . $alat->nama_alat . ' | ' .
-                'Qty: ' . $peminjaman->jumlah
-        );
-
-        return back()->with('success', 'Peminjaman disetujui.');
+    if ($peminjaman->jumlah > $alat->stok) {
+        return back()->with('error', 'Stok tidak mencukupi');
     }
+
+    $alat->decrement('stok', $peminjaman->jumlah);
+
+    $peminjaman->update([
+        'status' => 'disetujui',
+        'disetujui_oleh' => auth()->id(),
+    ]);
+
+    logAktivitas(
+        'Peminjaman disetujui | ' .
+        'Peminjaman #' . $peminjaman->id . ' | ' .
+        'Alat: ' . $alat->nama_alat . ' | ' .
+        'Qty: ' . $peminjaman->jumlah . ' | ' .
+        'Disetujui oleh: ' . auth()->user()->name
+    );
+
+    return back()->with('success', 'Peminjaman disetujui.');
+}
+
 
     public function serahkan($id)
     {
@@ -87,27 +90,30 @@ class PeminjamanController extends Controller
         return back()->with('success', 'Alat berhasil diserahkan ke peminjam');
     }
 
-    public function reject(Request $request, $id)
-    {
-        $request->validate([
-            'alasan_batal' => 'required|string|max:500'
-        ]);
+public function reject(Request $request, $id)
+{
+    $request->validate([
+        'alasan_batal' => 'required|string|max:500'
+    ]);
 
-        $peminjaman = Peminjaman::with('alat')->findOrFail($id);
+    $peminjaman = Peminjaman::with('alat')->findOrFail($id);
 
-        $peminjaman->update([
-            'status' => 'ditolak',
-            'alasan_batal' => $request->alasan_batal
-        ]);
+    $peminjaman->update([
+        'status' => 'ditolak',
+        'alasan_batal' => $request->alasan_batal,
+        'disetujui_oleh' => auth()->id() // ⬅ tambahkan ini
+    ]);
 
-        logAktivitas(
-            'Peminjaman ditolak | ' .
-                'Peminjaman #' . $peminjaman->id . ' | ' .
-                'Alat: ' . $peminjaman->alat->nama_alat . ' | ' .
-                'Qty: ' . $peminjaman->jumlah . ' | ' .
-                'Alasan: ' . $request->alasan_batal
-        );
+    logAktivitas(
+        'Peminjaman ditolak | ' .
+        'Peminjaman #' . $peminjaman->id . ' | ' .
+        'Alat: ' . $peminjaman->alat->nama_alat . ' | ' .
+        'Qty: ' . $peminjaman->jumlah . ' | ' .
+        'Alasan: ' . $request->alasan_batal . ' | ' .
+        'Ditolak oleh: ' . auth()->user()->name
+    );
 
-        return back()->with('success', 'Peminjaman ditolak');
-    }
+    return back()->with('success', 'Peminjaman ditolak');
+}
+
 }

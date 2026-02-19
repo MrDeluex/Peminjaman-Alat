@@ -14,7 +14,7 @@ class PeminjamanController extends Controller
     {
         $tab = $request->get('tab', 'aktif');
 
-        $query = Peminjaman::with('alat')
+        $query = Peminjaman::with(['alat', 'approver', 'pengembalian'])
             ->where('user_id', auth()->id());
 
         if ($tab === 'aktif') {

@@ -81,10 +81,10 @@
             <p class="text-sm text-gray-500">Lihat status peminjaman</p>
         </a>
 
-        <a href="{{ route('peminjam.pengembalian.index') }}"
+        <a href="/peminjam/peminjaman?tab=riwayat"
            class="border rounded-lg p-4 hover:bg-gray-50 transition">
-            <p class="font-semibold text-gray-900">Pengembalian</p>
-            <p class="text-sm text-gray-500">Konfirmasi pengembalian</p>
+            <p class="font-semibold text-gray-900">Riwayat Peminjaman</p>
+            <p class="text-sm text-gray-500">Lihat riwayat peminjaman</p>
         </a>
     </div>
 </div>

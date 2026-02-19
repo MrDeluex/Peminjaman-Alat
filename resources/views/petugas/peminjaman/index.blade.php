@@ -115,14 +115,14 @@
                                 @endif
 
                                 @if (in_array($p->status, ['menunggu', 'disetujui']))
-                                    <form action="{{ route('petugas.peminjaman.reject', $p->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit"
-                                            class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition">
-                                            Reject
-                                        </button>
-                                    </form>
-                                @endif
+    <button 
+        type="button"
+        onclick="openRejectModal({{ $p->id }})"
+        class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition">
+        Reject
+    </button>
+@endif
+
                             </div>
                         </td>
                     </tr>
@@ -143,4 +143,65 @@
         @endif
     </div>
 </div>
+
+<!-- Modal Reject -->
+<div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-1/2 max-w-md p-6 relative">
+
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">
+            Alasan Penolakan
+        </h2>
+
+        <form id="rejectForm" method="POST">
+            @csrf
+            <div class="mb-4">
+                <label class="block text-sm text-gray-600 mb-2">
+                    Berikan alasan penolakan
+                </label>
+                <textarea 
+                    name="alasan_batal" 
+                    id="alasan_batal"
+                    rows="4"
+                    required
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
+                    placeholder="Masukkan alasan penolakan..."></textarea>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <button type="button"
+                    onclick="closeRejectModal()"
+                    class="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300 transition">
+                    Batal
+                </button>
+
+                <button type="submit"
+                    class="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition">
+                    Kirim
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    function openRejectModal(id) {
+        const modal = document.getElementById('rejectModal');
+        const form = document.getElementById('rejectForm');
+
+        form.action = `/petugas/peminjaman/${id}/reject`; 
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeRejectModal() {
+        const modal = document.getElementById('rejectModal');
+        const textarea = document.getElementById('alasan_batal');
+
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+        textarea.value = '';
+    }
+</script>
+
 @endsection

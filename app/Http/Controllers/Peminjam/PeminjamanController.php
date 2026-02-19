@@ -83,6 +83,7 @@ class PeminjamanController extends Controller
             'jumlah' => $request->jumlah,
             'tanggal_pinjam' => $request->tanggal_pinjam,
             'tanggal_kembali_rencana' => $request->tanggal_kembali_rencana,
+            'keterangan' => $request->keterangan,
             'status' => 'menunggu',
         ]);
 

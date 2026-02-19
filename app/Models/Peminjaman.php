@@ -16,6 +16,7 @@ class Peminjaman extends Model
         'tanggal_kembali_rencana',
         'status',
         'keterangan',
+        'alasan_batal',
     ];
 
     public const STATUS_MENUNGGU    = 'menunggu';

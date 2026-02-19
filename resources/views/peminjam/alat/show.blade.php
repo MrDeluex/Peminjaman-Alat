@@ -97,6 +97,17 @@
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">
+                            Keterangan
+                        </label>
+
+                        <input type="text" id="keterangan" name="keterangan"
+                            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring">
+                    </div>
+                </div>
+
 
                 <div class="flex justify-end gap-2">
                     <a href="{{ route('peminjam.alat.index') }}"

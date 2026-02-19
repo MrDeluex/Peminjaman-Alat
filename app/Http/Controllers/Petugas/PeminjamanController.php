@@ -87,20 +87,27 @@ class PeminjamanController extends Controller
         return back()->with('success', 'Alat berhasil diserahkan ke peminjam');
     }
 
-    public function reject($id)
+    public function reject(Request $request, $id)
     {
+        $request->validate([
+            'alasan_batal' => 'required|string|max:500'
+        ]);
+
         $peminjaman = Peminjaman::with('alat')->findOrFail($id);
 
         $peminjaman->update([
-            'status' => 'ditolak'
+            'status' => 'ditolak',
+            'alasan_batal' => $request->alasan_batal
         ]);
 
         logAktivitas(
             'Peminjaman ditolak | ' .
                 'Peminjaman #' . $peminjaman->id . ' | ' .
                 'Alat: ' . $peminjaman->alat->nama_alat . ' | ' .
-                'Qty: ' . $peminjaman->jumlah
+                'Qty: ' . $peminjaman->jumlah . ' | ' .
+                'Alasan: ' . $request->alasan_batal
         );
+
         return back()->with('success', 'Peminjaman ditolak');
     }
 }

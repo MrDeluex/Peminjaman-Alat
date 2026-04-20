@@ -90,15 +90,15 @@
                             <td class="px-4 py-3">
                                 @if (in_array($p->status, ['menunggu', 'disetujui']))
                                     <button type="button"
-                                        onclick="openProcessModal(
-                '{{ $p->id }}',
-                '{{ $p->alat->nama_alat }}',
-                '{{ $p->jumlah }}',
-                '{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}',
-                '{{ \Carbon\Carbon::parse($p->tanggal_kembali_rencana)->format('d M Y') }}',
-                '{{ $p->status }}',
-                `{{ $p->keterangan ?? '-' }}`
-            )"
+                                        onclick='openProcessModal(
+                @json($p->id),
+                @json($p->alat->nama_alat),
+                @json($p->jumlah),
+                @json(\Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y')),
+                @json(\Carbon\Carbon::parse($p->tanggal_kembali_rencana)->format('d M Y')),
+                @json($p->status),
+                @json($p->keterangan ?? '-')
+            )'
                                         class="px-3 py-1 bg-gray-800 text-white text-xs rounded hover:bg-gray-900 transition">
                                         Proses
                                     </button>

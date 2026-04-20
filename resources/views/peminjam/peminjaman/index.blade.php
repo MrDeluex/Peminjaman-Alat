@@ -108,18 +108,17 @@
 
                                 <!-- Detail -->
                                 <button
-                                    onclick="openDetailModal(
-            '{{ $p->alat->nama_alat }}',
-            '{{ $p->jumlah }}',
-            '{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}',
-            '{{ \Carbon\Carbon::parse($p->tanggal_kembali_rencana)->format('d M Y') }}',
-            '{{ $p->status }}',
-            `{{ $p->approver->username ?? '-' }}`,
-            `{{ $p->alasan_batal ?? '-' }}`,
-            `{{ $p->keterangan ?? '-' }}`,
-            `{{ $p->pengembalian->total_denda ?? 0 }}`
-
-        )"
+                                    onclick='openDetailModal(
+        @json($p->alat->nama_alat),
+        @json($p->jumlah),
+        @json(\Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y')),
+        @json(\Carbon\Carbon::parse($p->tanggal_kembali_rencana)->format('d M Y')),
+        @json($p->status),
+        @json($p->approver->username ?? '-'),
+        @json($p->alasan_batal ?? '-'),
+        @json($p->keterangan ?? '-'),
+        @json($p->pengembalian->total_denda ?? 0)
+    )'
                                     class="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition">
                                     Detail
                                 </button>
@@ -225,6 +224,7 @@
 
     <script>
         function openDetailModal(nama, jumlah, pinjam, kembali, status, approver, alasan, keterangan, total_denda) {
+            console.log("KEPANGGIL");
 
             document.getElementById('detail_nama').innerText = nama;
             document.getElementById('detail_jumlah').innerText = jumlah;
